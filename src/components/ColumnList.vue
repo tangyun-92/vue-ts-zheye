@@ -2,7 +2,7 @@
 <template>
   <div>
     <div class="row">
-      <div v-for="column in list" :key="column.id" class="col-4 mb-4">
+      <div v-for="column in columnList" :key="column._id" class="col-4 mb-4">
         <div class="card h-100 shadow-sm">
           <div class="card-body text-center">
             <img
@@ -12,7 +12,11 @@
             />
             <h5 class="card-title">{{ column.title }}</h5>
             <p class="card-text text-start">{{ column.description }}</p>
-            <router-link :to="`/column/${column.id}`" class="btn btn-outline-primary">进入专栏</router-link>
+            <router-link
+              :to="`/column/${column._id}`"
+              class="btn btn-outline-primary"
+              >进入专栏</router-link
+            >
           </div>
         </div>
       </div>
@@ -22,7 +26,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType } from 'vue'
-import { ColumnProps } from '../testData'
+import { ColumnProps } from '../store'
 
 export default defineComponent({
   name: 'ColumnList',
