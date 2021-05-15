@@ -43,7 +43,7 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const router = useRouter()
-    const inputRef = ref<any>()
+    const inputRef = ref()
     const emailVal = ref('')
     const passwordVal = ref('')
     const emailRules: RulesProp = [
