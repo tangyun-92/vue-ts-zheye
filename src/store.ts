@@ -4,7 +4,8 @@ import axios from 'axios'
 export interface UserProps {
   isLogin: boolean
   name?: string
-  id?: number
+  _id?: string
+  headline?: string
   columnId?: number
 }
 
@@ -32,6 +33,7 @@ export interface PostProps {
 }
 
 export interface GlobalDataProps {
+  token: string
   loading: boolean
   columns: ColumnProps[]
   posts: PostProps[]
@@ -39,22 +41,20 @@ export interface GlobalDataProps {
   user: UserProps
 }
 
-interface ParamsProps {
-  columnId: string
-}
-
 const postAndCommit = async (
   url: string,
   mutationName: string,
   commit: Commit,
-  params?: ParamsProps
+  params?: any
 ) => {
   const { data } = await axios.post(url, params)
   commit(mutationName, data)
+  return data
 }
 
 const store = createStore<GlobalDataProps>({
   state: {
+    token: localStorage.getItem('token') || '',
     loading: false,
     columns: [],
     posts: [],
@@ -64,15 +64,16 @@ const store = createStore<GlobalDataProps>({
       description: ''
     },
     user: {
-      isLogin: true,
+      _id: '',
+      isLogin: false,
       name: 'tang',
       columnId: 1
     }
   },
   mutations: {
-    login(state) {
-      state.user = { ...state.user, isLogin: true, name: 'tang' }
-    },
+    // login(state) {
+    //   state.user = { ...state.user, isLogin: true, name: 'tang' }
+    // },
     createPost(state, newPost) {
       state.posts.push(newPost)
     },
@@ -87,6 +88,17 @@ const store = createStore<GlobalDataProps>({
     },
     setLoading(state, status) {
       state.loading = status
+    },
+    fetchCurrentUser(state, rawData) {
+      state.user = { isLogin: true, ...rawData.data }
+    },
+    login(state, rawData) {
+      const { token, data } = rawData
+      state.token = token
+      state.user = { isLogin: true, ...data }
+      localStorage.setItem('token', token)
+      localStorage.setItem('_id', data._id)
+      axios.defaults.headers.common.token = `Bearer ${token}`
     }
   },
   actions: {
@@ -102,9 +114,19 @@ const store = createStore<GlobalDataProps>({
       postAndCommit('/columns/columnArticleList', 'fetchPosts', commit, {
         columnId: cid
       })
+    },
+    fetchCurrentUser({ commit }, cid) {
+      postAndCommit('/users/getUserInfo', 'fetchCurrentUser', commit, {
+        userId: cid
+      })
+    },
+    login({ commit }, params) {
+      postAndCommit('/users/login', 'login', commit, params)
     }
-    // async createPost({commit}, params) {
-    //   const res = await axios.post('')
+    // loginAndFetch({dispatch}, loginData) {
+    //   return dispatch('login', loginData).then(() => {
+    //     return dispatch('fetchCurrentUser')
+    //   })
     // }
   },
   getters: {

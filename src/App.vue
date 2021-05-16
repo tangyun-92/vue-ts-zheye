@@ -22,11 +22,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, onMounted } from 'vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import GlobalHeader from './components/GlobalHeader.vue'
 import { useStore } from 'vuex'
 import Loader from './components/Loader.vue'
+import { GlobalDataProps } from './store'
+import axios from 'axios'
 
 export default defineComponent({
   name: 'App',
@@ -35,9 +37,17 @@ export default defineComponent({
     Loader
   },
   setup() {
-    const store = useStore()
+    const store = useStore<GlobalDataProps>()
     const currentUser = computed(() => store.state.user)
     const isLoading = computed(() => store.state.loading)
+    const token = computed(() => store.state.token)
+    const id = localStorage.getItem('_id')
+    onMounted(() => {
+      if (!currentUser.value.isLogin && token.value) {
+        axios.defaults.headers.common.token = `Bearer ${token.value}`
+        store.dispatch('fetchCurrentUser', id)
+      }
+    })
     return {
       currentUser,
       isLoading
