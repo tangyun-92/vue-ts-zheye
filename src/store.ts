@@ -32,6 +32,7 @@ export interface PostProps {
 }
 
 export interface GlobalDataProps {
+  loading: boolean
   columns: ColumnProps[]
   posts: PostProps[]
   column: ColumnDetailProps
@@ -42,7 +43,7 @@ interface ParamsProps {
   columnId: string
 }
 
-const getAndCommit = async (
+const postAndCommit = async (
   url: string,
   mutationName: string,
   commit: Commit,
@@ -54,6 +55,7 @@ const getAndCommit = async (
 
 const store = createStore<GlobalDataProps>({
   state: {
+    loading: false,
     columns: [],
     posts: [],
     column: {
@@ -82,22 +84,25 @@ const store = createStore<GlobalDataProps>({
     },
     fetchPosts(state, rawData) {
       state.posts = rawData.data
+    },
+    setLoading(state, status) {
+      state.loading = status
     }
   },
   actions: {
     fetchColumns({ commit }) {
-      getAndCommit('/columns/getColumnList', 'fetchColumns', commit)
+      postAndCommit('/columns/getColumnList', 'fetchColumns', commit)
     },
     fetchColumn({ commit }, cid) {
-      getAndCommit('/columns/getColumnInfo', 'fetchColumn', commit, {
+      postAndCommit('/columns/getColumnInfo', 'fetchColumn', commit, {
         columnId: cid
       })
     },
     fetchPosts({ commit }, cid) {
-      getAndCommit('/columns/columnArticleList', 'fetchPosts', commit, {
+      postAndCommit('/columns/columnArticleList', 'fetchPosts', commit, {
         columnId: cid
       })
-    },
+    }
     // async createPost({commit}, params) {
     //   const res = await axios.post('')
     // }
