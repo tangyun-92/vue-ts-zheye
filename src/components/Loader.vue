@@ -13,7 +13,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted } from 'vue'
+import { defineComponent } from 'vue'
+import useDOMCreate from '../hooks/useDOMCreate'
 
 export default defineComponent({
   props: {
@@ -25,14 +26,8 @@ export default defineComponent({
     }
   },
   setup() {
-    // 在渲染之前创建一个node节点
-    const node = document.createElement('div')
-    node.id = 'back'
-    document.body.appendChild(node)
-    // 组件销毁时移除节点
-    onUnmounted(() => {
-      document.body.removeChild(node)
-    })
+    // 创建DOM的hooks
+    useDOMCreate('back')
   }
 })
 </script>

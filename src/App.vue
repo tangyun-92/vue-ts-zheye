@@ -6,6 +6,7 @@
       text="拼命加载中"
       background="rgba(0,0,0, 0.7)"
     ></loader>
+    <message type="error" :message="error.message" v-if="error.status"></message>
     <router-view></router-view>
     <footer class="text-center py-4 text-secondary bg-light mt-6">
       <small>
@@ -29,12 +30,14 @@ import { useStore } from 'vuex'
 import Loader from './components/Loader.vue'
 import { GlobalDataProps } from './store'
 import axios from 'axios'
+import Message from './components/Message.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     GlobalHeader,
-    Loader
+    Loader,
+    Message
   },
   setup() {
     const store = useStore<GlobalDataProps>()
@@ -42,6 +45,7 @@ export default defineComponent({
     const isLoading = computed(() => store.state.loading)
     const token = computed(() => store.state.token)
     const id = localStorage.getItem('_id')
+    const error = computed(() => store.state.error)
     onMounted(() => {
       if (!currentUser.value.isLogin && token.value) {
         axios.defaults.headers.common.token = `Bearer ${token.value}`
@@ -50,7 +54,8 @@ export default defineComponent({
     })
     return {
       currentUser,
-      isLoading
+      isLoading,
+      error
     }
   }
 })

@@ -32,7 +32,13 @@ export interface PostProps {
   columnId: number
 }
 
+export interface GlobalErrorProps {
+  status: boolean
+  message?: string
+}
+
 export interface GlobalDataProps {
+  error: GlobalErrorProps
   token: string
   loading: boolean
   columns: ColumnProps[]
@@ -54,6 +60,7 @@ const postAndCommit = async (
 
 const store = createStore<GlobalDataProps>({
   state: {
+    error: { status: false },
     token: localStorage.getItem('token') || '',
     loading: false,
     columns: [],
@@ -89,6 +96,9 @@ const store = createStore<GlobalDataProps>({
     setLoading(state, status) {
       state.loading = status
     },
+    setError(state, e: GlobalErrorProps) {
+      state.error = e
+    },
     fetchCurrentUser(state, rawData) {
       state.user = { isLogin: true, ...rawData.data }
     },
@@ -121,7 +131,18 @@ const store = createStore<GlobalDataProps>({
       })
     },
     login({ commit }, params) {
-      postAndCommit('/users/login', 'login', commit, params)
+      return new Promise((resolve, reject) => {
+        axios.post('/users/login', params).then(res => {
+          if (res.data.code === 1) {
+            commit('login', res.data)
+            resolve(res.data)
+          } else {
+            reject()
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      })
     }
     // loginAndFetch({dispatch}, loginData) {
     //   return dispatch('login', loginData).then(() => {

@@ -60,7 +60,7 @@ export default defineComponent({
           name: emailVal.value,
           password: passwordVal.value
         }
-        store.dispatch('login', params).then((data) => {
+        store.dispatch('login', params).then(() => {
           router.push(`/`)
         })
       }
